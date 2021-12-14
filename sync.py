@@ -22,11 +22,11 @@ def synchronizing_folders(source_path, destination_path, logs_path, interval=30)
     """
     # stripping last separator if there is the case
     if source_path[-1] == os.sep:
-        del source_path[-1]
+        source_path = source_path[:-1]
     if destination_path[-1] == os.sep:
-        del destination_path[-1]
+        destination_path = destination_path[:-1]
     if logs_path[-1] == os.sep:
-        del logs_path[-1]
+        logs_path = logs_path[:-1]
     # configuring logging
     log_file = f"{logs_path}{os.sep}{datetime.now().strftime('%Y_%m_%d-%H_%M_%S_%f')}"
     if not os.path.exists(logs_path):
