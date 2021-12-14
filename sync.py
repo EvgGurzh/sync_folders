@@ -7,7 +7,7 @@ import filecmp
 from datetime import datetime
 
 
-def synchronizing_folders(source_path, destination_path, logs_path, interval=30):
+def synchronizing_folders(source_path, destination_path, logs_path, interval):
     """
     One way synchronization from source to destination
         :param source_path: Source folder path
@@ -16,7 +16,7 @@ def synchronizing_folders(source_path, destination_path, logs_path, interval=30)
         :type destination_path: string
         :param logs_path: Path to folder to store logs, will be created if not exists
         :type logs_path: string
-        :param interval: Synchronization interval in seconds, default is 30 seconds
+        :param interval: Synchronization interval in seconds
         :type interval: int
         :return: None
     """
@@ -51,27 +51,27 @@ def synchronizing_folders(source_path, destination_path, logs_path, interval=30)
             folders_to_remove = set(destination_sub_folders) - set(current_sub_folders)
             folders_to_create = set(current_sub_folders) - set(destination_sub_folders)
             for folder in folders_to_remove:
-                destination_folder = f"{current_folder}{os.sep}{folder}".replace(source_path, destination_path)
-                logging.info(f"Removing folder {destination_folder}")
-                shutil.rmtree(destination_folder)
+                destination_folder_path = f"{current_folder}{os.sep}{folder}".replace(source_path, destination_path)
+                logging.info(f"Removing folder {destination_folder_path}")
+                shutil.rmtree(destination_folder_path)
             for folder in folders_to_create:
-                destination_folder = f"{current_folder}{os.sep}{folder}".replace(source_path, destination_path)
-                logging.info(f"Creating folder {destination_folder}")
-                os.mkdir(destination_folder)
+                destination_folder_path = f"{current_folder}{os.sep}{folder}".replace(source_path, destination_path)
+                logging.info(f"Creating folder {destination_folder_path}")
+                os.mkdir(destination_folder_path)
             # handling files
             destination_files = next(os.walk(current_folder.replace(source_path, destination_path)))[2]
             files_to_remove = set(destination_files) - set(current_files)
             for file in files_to_remove:
-                destination_file = f"{current_folder}{os.sep}{file}".replace(source_path, destination_path)
-                logging.info(f"Removing file {destination_file}")
-                os.remove(destination_file)
+                destination_file_path = f"{current_folder}{os.sep}{file}".replace(source_path, destination_path)
+                logging.info(f"Removing file {destination_file_path}")
+                os.remove(destination_file_path)
             for file in current_files:
-                source_file = f"{current_folder}{os.sep}{file}"
-                destination_file = source_file.replace(source_path, destination_path)
-                if os.path.isfile(destination_file) and filecmp.cmp(source_file, destination_file):
+                source_file_path = f"{current_folder}{os.sep}{file}"
+                destination_file_path = source_file_path.replace(source_path, destination_path)
+                if os.path.isfile(destination_file_path) and filecmp.cmp(source_file_path, destination_file_path):
                     continue
-                logging.info(f"Copying file {source_file}")
-                shutil.copy2(source_file, destination_file)
+                logging.info(f"Copying file {source_file_path}")
+                shutil.copy2(source_file_path, destination_file_path)
         # handling sleep according to the passed time
         if (time.time() - start_time) // interval >= 1:
             time.sleep(interval)
@@ -84,8 +84,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Sync script')
     parser.add_argument('-s', dest="source", type=str)
     parser.add_argument('-d', dest="destination", type=str)
-    parser.add_argument('-i', dest="interval", type=int)
     parser.add_argument('-l', dest="logs", type=str)
+    parser.add_argument('-i', dest="interval", type=int)
     args = parser.parse_args()
     # run synchronization
     synchronizing_folders(args.source, args.destination, args.logs, args.interval)
