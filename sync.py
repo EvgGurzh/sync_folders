@@ -7,7 +7,7 @@ import filecmp
 from datetime import datetime
 
 
-def synchronizing_folders(source_path, destination_path, logs_path, interval):
+def synchronizing_folders(source_path, destination_path, logs_path, interval=30):
     """
     One way synchronization from source to destination
         :param source_path: Source folder path
@@ -20,6 +20,13 @@ def synchronizing_folders(source_path, destination_path, logs_path, interval):
         :type interval: int
         :return: None
     """
+    # stripping last separator if there is the case
+    if source_path[-1] == os.sep:
+        del source_path[-1]
+    if destination_path[-1] == os.sep:
+        del destination_path[-1]
+    if logs_path[-1] == os.sep:
+        del logs_path[-1]
     # configuring logging
     log_file = f"{logs_path}{os.sep}{datetime.now().strftime('%Y_%m_%d-%H_%M_%S_%f')}"
     if not os.path.exists(logs_path):
@@ -77,15 +84,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Sync script')
     parser.add_argument('-s', dest="source", type=str)
     parser.add_argument('-d', dest="destination", type=str)
-    parser.add_argument('-i', dest="interval", default=30, type=int)
+    parser.add_argument('-i', dest="interval", type=int)
     parser.add_argument('-l', dest="logs", type=str)
     args = parser.parse_args()
-    # stripping last separator if there is the case
-    if args.src[-1] == os.sep:
-        del args.src[-1]
-    if args.dst[-1] == os.sep:
-        del args.dst[-1]
-    if args.logs[-1] == os.sep:
-        del args.logs[-1]
     # run synchronization
     synchronizing_folders(args.source, args.destination, args.logs, args.interval)
