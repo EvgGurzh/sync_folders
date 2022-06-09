@@ -21,12 +21,9 @@ def synchronizing_folders(source_path, destination_path, logs_path, interval):
         :return: None
     """
     # stripping last separator if there is the case
-    if source_path[-1] == os.sep:
-        source_path = source_path[:-1]
-    if destination_path[-1] == os.sep:
-        destination_path = destination_path[:-1]
-    if logs_path[-1] == os.sep:
-        logs_path = logs_path[:-1]
+    for path in source_path, destination_path, logs_path:
+        if path[-1] == os.sep:
+            path = path[:-1]
     # configuring logging
     log_file = f"{logs_path}{os.sep}{datetime.now().strftime('%Y_%m_%d-%H_%M_%S_%f')}"
     if not os.path.exists(logs_path):
@@ -45,6 +42,7 @@ def synchronizing_folders(source_path, destination_path, logs_path, interval):
     logging.info(f"Starting synchronization with interval of {interval} seconds")
     while True:
         start_time = time.time()
+        logging.info(f"Syncing..")
         for current_folder, current_sub_folders, current_files in os.walk(source_path):
             # handling folders
             destination_sub_folders = next(os.walk(current_folder.replace(source_path, destination_path)))[1]
@@ -73,10 +71,7 @@ def synchronizing_folders(source_path, destination_path, logs_path, interval):
                 logging.info(f"Copying file {source_file_path}")
                 shutil.copy2(source_file_path, destination_file_path)
         # handling sleep according to the passed time
-        if (time.time() - start_time) // interval >= 1:
-            time.sleep(interval)
-        else:
-            time.sleep(interval - ((time.time() - start_time) % interval))
+        time.sleep(interval - ((time.time() - start_time) % interval))
 
 
 if __name__ == "__main__":
@@ -85,7 +80,7 @@ if __name__ == "__main__":
     parser.add_argument('-s', dest="source", type=str)
     parser.add_argument('-d', dest="destination", type=str)
     parser.add_argument('-l', dest="logs", type=str)
-    parser.add_argument('-i', dest="interval", type=int)
+    parser.add_argument('-i', dest="interval", type=int, default=60)
     args = parser.parse_args()
     # run synchronization
     synchronizing_folders(args.source, args.destination, args.logs, args.interval)
